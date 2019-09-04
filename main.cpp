@@ -14,14 +14,13 @@
 #include <tuple>
 #include <cmath>
 #include <vector>
-//#ifdef _WIN32
+#ifdef _WIN32
 #include <windows.h>
 #include <conio.h> 
-//#else
+#else
 #include <curses.h>
-//#endif
+#endif
  
-
     /* Simulation Constants */
 const double gravity = 3.7;
 const double c       = 0.13;
@@ -33,7 +32,7 @@ const double vMax    = 46;
 
     /* Function Declarations */
 void runSimulation();
-void displayStoredData();
+void display_stored_data();
 void reRunSimulation();
 bool sortSimulationTime(const std::tuple<std::string, double, double>&, std::tuple <std::string, double, double>&);
 bool sortSimulationBounces(const std::tuple<std::string, double, double>&, std::tuple <std::string, double, double>&);
@@ -57,9 +56,10 @@ int main() {
 				break;
 			case '2':
 				system("CLS");   /* Clear the console screen before starting the simulation */
-				displayStoredData();
+				display_stored_data();
 				break;
 			case '3':
+				system("CLS");
 				std::cout << "Terminating application..." << std::endl;
 				isSimulationActive = false; /* Break the loop - Terminate application */
 				break;
@@ -181,7 +181,7 @@ void reRunSimulation() {
 /**
  * Display the information saved from the simulations to the console
  */
-void displayStoredData() {
+void display_stored_data() {
 	system("CLS");                                                 /* Clear the console screen before displaying the information */
 	std::vector<std::tuple <std::string, double, double>> entries; /* Create a vector to hold the information of the simulation */
 	std::ifstream simulationData;
