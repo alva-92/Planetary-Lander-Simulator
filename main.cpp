@@ -29,6 +29,7 @@ const double vMax    = 46;
 #define FUEL_RESERVE 100;
 #define INCREASE_B   'W'
 #define DECREASE_B   'E'
+#define EMPTY_RESERVE 0
 
     /* Function Declarations */
 void runSimulation();
@@ -79,12 +80,12 @@ void runSimulation() {
 	double vPrime = 0.0;
 	double fuelReserve = FUEL_RESERVE;  /* Fixed reserve of fuel. Usage has a rate of B/s */
 	double heightAboveSurface = 1000;   /* Lander is 1000 meters above the surface when released from the mother ship*/
-	double currentPosition = 1000;
-	double burntFuel = 0.0;
+	double currentPosition = 1000;      /* Position of the lander. Initialized at the height above the surface */
+	double burntFuel = 0.0;             /* Burnt fuel count */
 	double miliseconds = 0.0;
 	double seconds = 0.0;
 	double minutes = 0.0;
-	double bounceCounter = 0.0;
+	double bounceCounter = 0.0;          /* Number of the lander bounces */
 	double changeTime = 0.0;
 	char inputKey = '\0';
 	double startTime = GetTickCount();
@@ -96,19 +97,28 @@ void runSimulation() {
 		startTime += changeTime;
 		miliseconds += changeTime;
 		
-		if (miliseconds >= 1000) { miliseconds = 0; seconds++; }
-		if (seconds >= 60) { seconds = 0; minutes++; }
+		if (miliseconds >= 1000) { 
+			miliseconds = 0; 
+			seconds++; 
+		}
+		if (seconds >= 60) { 
+			seconds = 0; 
+			minutes++; 
+		}
 		
-		if (_kbhit()) {
+		if (_kbhit()) { /* Check user's input */
 			inputKey = _getch(); /* Retrieve character */
-			if (inputKey == INCREASE_B && fuelReserve > 0)
+			if (inputKey == INCREASE_B && fuelReserve > EMPTY_RESERVE)
 				burntFuel += 1;
-			if (inputKey == DECREASE_B && burntFuel > 0) 
+			if (inputKey == DECREASE_B && burntFuel > EMPTY_RESERVE) 
 				burntFuel -= 1;
 		}
 		if (burntFuel > 0)
-			fuelReserve -= (burntFuel*(changeTime/1000));
-		if (fuelReserve <= 0) { burntFuel = 0.0; fuelReserve = 0.0; }
+			fuelReserve -= (burntFuel * (changeTime/1000));
+		if (fuelReserve <= 0) { 
+			burntFuel = 0.0; 
+			fuelReserve = 0.0; 
+		}
 
 		dv_dt = gravity - c*(v + a * pow((v / vMax), 3)) - burntFuel;
 		vPrime = v + dv_dt * (changeTime / 1000);
@@ -117,7 +127,7 @@ void runSimulation() {
 
 		heightAboveSurface = heightAboveSurface - (v*(changeTime / 1000));
 
-		if (heightAboveSurface < 1 && v > 1) {
+		if (heightAboveSurface < 1 && v > 1) {	
 			bounceCounter++;
 			v = 0 - v;
 		}
@@ -133,9 +143,14 @@ void runSimulation() {
 		Sleep(200);
 		system("CLS");
 
-		if (heightAboveSurface < 1 && v < 1 && v > 0) {
+		if (heightAboveSurface < 1 && v < 1 && v > 0) { /* Check if the landing was successful. */
 			std::ofstream simulationData;
-			simulationData.open("simulationData.txt", std::ios_base::app);
+			simulationData.open("../SimulationData/simulationData.txt", std::ios_base::app);
+			if (!simulationData.is_open()) {
+				simulationData.close();
+				std::cout << "Error opening file.\n";
+				return;
+			}
 			std::string entryName;
 			std::cout << "Enter a name for this simulation entry: ";
 			std::cin >> entryName;
@@ -144,7 +159,7 @@ void runSimulation() {
 			double scoreMiliseconds = (miliseconds / 1000);
 			double scoreSeconds = (scoreMinutes + scoreMiliseconds + seconds);
 
-			simulationData << "\n" << entryName << " " << bounceCounter << " " << scoreSeconds;
+			simulationData << "\n" << entryName << " " << bounceCounter << " " << scoreSeconds; /* Write the score on file */
 			simulationData.close();
 			system("CLS");
 			reRunSimulation(); /* Check if the user wishes to run the simulation once again */
@@ -185,7 +200,7 @@ void display_stored_data() {
 	system("CLS");                                                 /* Clear the console screen before displaying the information */
 	std::vector<std::tuple <std::string, double, double>> entries; /* Create a vector to hold the information of the simulation */
 	std::ifstream simulationData;
-	simulationData.open("simulationData.txt");
+	simulationData.open("../SimulationData/simulationData.txt");
 	if (!simulationData.is_open()) {
 		simulationData.close();
 		std::cout << "Error opening file.\n";
