@@ -1,3 +1,17 @@
+/**
+ * Copyright (c) 2019 Gerardo Enrique Alvarenga.
+ *
+ * This work is licensed under the terms of the MIT license.
+ *
+ *
+ *  @name         main.cpp
+ *  @description  The planetary lander is a game which uses differential equations (ODEs) 
+ *                and solves them in real-time in order to simulate the lander getting to 
+ *                a planet. Keeps highscores of players.
+ *  @author       Gerardo Enrique Alvarenga
+ *  @version      1.1
+ */
+
 #ifdef _MSC_VER
 #include <crtdbg.h>
 #else
